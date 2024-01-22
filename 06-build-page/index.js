@@ -1,5 +1,5 @@
 
-//// -----------------------------Assets не копируется, шаблон встает криво
+//// ----------------------------- шаблон встает криво
 
 const fs = require("fs");
 const fsPromises = require("fs/promises");
@@ -50,21 +50,35 @@ const addComponents = async () => {
   }
 }
 
-const copyAssets = () => {
+const copyAssets = async () => {
   const assetsPath = path.join(__dirname, "assets")
   const assetsCopy = path.resolve(__dirname, "project-dist", "assets")
+  try {
+    await fsPromises.mkdir(assetsCopy,{recursive: true});
+    const toCopy = fsPromises.readdir(assetsPath, {withFileTypes: true})
+      .then ((files) => {
+        files.forEach((file) => {
+          if (file.isDirectory()) {
+            fsPromises.mkdir(path.resolve(__dirname, assetsCopy, file.name), {recursive: true})
+              .then (() => {
+                fsPromises.readdir(path.resolve(__dirname, assetsPath, file.name), {withFileTypes: true})
+                  .then((innerFiles) => {
+                    innerFiles.forEach((innerFile) => {
+                      const src = path.resolve(__dirname, assetsPath, file.name, innerFile.name)
+                      const dest = path.resolve(__dirname, assetsCopy, file.name, innerFile.name)
+                      fsPromises.copyFile(src, dest)
+                    })
+                  })
+              })
+          }
+        })
+      })
 
+  } catch (err){
+    throw err
+  }
 
-  fsPromises.mkdir(assetsCopy, {recursive: true})
-
-  fsPromises.readdir(assetsPath, {withFileTypes: true})
-  .then((files) => {
-    files.map((file) => {
-      const src = path.join(assetsPath, file.name)
-      const dest = path.join(assetsCopy, file.name)
-      fsPromises.copyFile(src, dest)
-    })
-  })
+  
   
 }
 
@@ -95,7 +109,7 @@ const getCssFiles = async (dir = __dirname, extension = ".css")  => {
   try {
     await createFolder();
     await addComponents();
-    // await copyAssets();
+    await copyAssets();
     await getCssFiles();
   } catch (err) {
     throw err;
