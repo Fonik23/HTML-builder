@@ -12,7 +12,7 @@ fs.readdir(pathToFolder, {withFileTypes: true}, (err, files) => {
       fs.stat(pathToElement, (err, stats) => {
         if (err) return;
         const checkExtension = element.name.startsWith('.') ? element.name.slice(1) : path.extname(element.name).slice(1)
-        stdout.write(`${element.name.slice(0, element.name.lastIndexOf("."))} - ${checkExtension} - ${stats.size}\n`)
+        stdout.write(`${element.name.slice(0, element.name.lastIndexOf("."))} - ${checkExtension} - ${stats.size} b\n`)
       })
     }
   })
