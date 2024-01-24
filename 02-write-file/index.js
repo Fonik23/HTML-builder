@@ -10,14 +10,19 @@ const askQuestion = (answer) => {
   if (answer.toLowerCase().trim() === "exit") {
     exit();
   }
-  fs.appendFile(getPath, answer + "\n", (err) => err
-                                                 ? stdout.write(err)
-                                                 : rl.question("Type something (or type 'exit' for quit): ", askQuestion))
+  
+  writeStream.write(answer + "\n", (err) => {
+    if (err) return;
+    
+  })
+  rl.question("Type something (or type 'exit' for quit): ", askQuestion)
 }
 
 const rl = readline.createInterface({input : stdin, output : stdout });
 
 rl.question("Type something (or type 'exit' for quit): ", askQuestion);
+
+const writeStream = fs.createWriteStream(getPath)
 
 rl.on("SIGINT", () => {
   rl.close();
